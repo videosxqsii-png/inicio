@@ -325,7 +325,14 @@
 
   // ----- Ajuste al tamaño de la ventana / fuente de OBS -----
   const stage = $('stage');
-  const fit = () => { stage.style.transform = `scale(${Math.min(innerWidth / 1920, innerHeight / 1080)})`; };
+  // En OBS el fondo queda transparente; en un navegador normal se rellena de negro y se centra la escena
+  if (!window.obsstudio) document.body.style.background = '#000';
+  const fit = () => {
+    const s = Math.min(innerWidth / 1920, innerHeight / 1080);
+    stage.style.left = ((innerWidth - 1920 * s) / 2) + 'px';
+    stage.style.top = ((innerHeight - 1080 * s) / 2) + 'px';
+    stage.style.transform = `scale(${s})`;
+  };
   addEventListener('resize', fit); fit();
 })();
 </script>
