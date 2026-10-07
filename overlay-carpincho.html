@@ -298,16 +298,18 @@
     $('demoVid').style.display = 'flex';
   } else {
     let player = null, ready = false, revealed = false;
+    // Apaga los subtítulos de YouTube (se pueden dejar con ?cc=1)
+    const quitarCC = () => { if (q.get('cc') === '1' || !player) return; try { player.unloadModule('captions'); player.unloadModule('cc'); } catch (e) {} };
     const go = () => {
       if (!player) return;
       try { player.playVideo(); } catch (e) {}
     };
     window.onYouTubeIframeAPIReady = () => {
-      const vars = { autoplay: 0, controls: 0, modestbranding: 1, rel: 0, iv_load_policy: 3, disablekb: 1, playsinline: 1, fs: 0, loop: 1 };
+      const vars = { autoplay: 0, controls: 0, modestbranding: 1, rel: 0, iv_load_policy: 3, disablekb: 1, playsinline: 1, fs: 0, loop: 1, cc_load_policy: 0 };
       const cfg = { width: 940, height: 529, playerVars: vars,
         events: {
-          onReady: () => { ready = true; if (MUTE) player.mute(); if (revealed) go(); },
-          onStateChange: e => { if (e.data === 0) { try { player.playVideoAt ? player.playVideoAt(0) : player.playVideo(); } catch (x) {} } },
+          onReady: () => { ready = true; if (MUTE) player.mute(); quitarCC(); if (revealed) go(); },
+          onStateChange: e => { if (e.data === 1) quitarCC(); if (e.data === 0) { try { player.playVideoAt ? player.playVideoAt(0) : player.playVideo(); } catch (x) {} } },
           onError: e => {
             if (DEBUG) { $('dbg').style.display = 'block'; $('dbg').textContent = 'Error de YouTube ' + e.data + ' (¿el video permite incrustarse?)'; }
             try { player.nextVideo(); } catch (x) {}
